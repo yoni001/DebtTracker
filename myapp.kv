@@ -1,0 +1,84 @@
+BoxLayout:
+	orientation: 'vertical'
+	padding: 20
+	spacing: 10
+	
+	BoxLayout:
+		padding: 20
+		spacing: 20
+		size_hint_y: None
+		height: 100
+		
+		Label:
+			text: "Debt holder"
+			font_size: "20sp"
+			
+		
+	ScrollView:
+		BoxLayout:
+			id: list_container
+			orientation: 'vertical'
+			spacing: 20
+			size_hint_y: None
+			height: self.minimum_height
+	
+	FloatLayout:
+		Button:
+	        text: "+"
+	        font_size: "32sp"
+	        size_hint: None, None
+	        size: dp(64), dp(64)
+	        pos_hint: {"center_x": .5, "y": .03}
+	        on_press: app.open_add_popup()
+	
+	
+				
+		
+
+# A popup that appears when adding a new debt
+# Is a class
+<AddDebtPopup@ModalView>:
+	# When the background is touched,
+	# it closes the popup
+	auto_dismiss: True
+	on_dismiss: app.schedule_reset_popup(app.reset_add_popup)
+	size_hint: .9, None
+	height: "180dp"
+	
+	BoxLayout:
+		orientation: 'vertical'
+		spacing: 5
+		padding: 5
+		size_hint_y: None
+		height: '140dp'
+		
+		Label:
+			id: add_popup_label
+			text: "Add a new debt owner."
+			font_size: "20sp"
+		
+		BoxLayout:
+			padding: 5
+			spacing: 10
+				
+			TextInput:
+				id: name_input
+				hint_text: 'Name'
+				multiline: False
+				size_hint_y: None
+				height: '30dp'
+			
+			TextInput:
+				id: debt_input
+				hint_text: 'Debt amount'
+				multiline: False
+				size_hint_y: None
+				height: '30dp'
+				input_filter: "float"
+			
+		Button:
+			id: submit_button
+			text: 'Add'
+			size_hint_y: None
+			height: '40dp'
+			on_press: app.add_debt()
