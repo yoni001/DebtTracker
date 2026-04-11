@@ -15,8 +15,10 @@ from kivy.clock import Clock
 from kivy.factory import Factory
 
 from kivy.uix.screenmanager import Screen
+from kivy.properties import ListProperty
 
 
+# Screens
 class HomeScreen(Screen):
     pass
 
@@ -25,10 +27,16 @@ class HistoryScreen(Screen):
     pass
 
 
-class MyApp(App):
+# Colored background for the rows of debts listed
+class ColoredBoxLayout(BoxLayout):
+    bg_color = ListProperty([0.1, 0.2, 0.3, 1])
+    rad = 18
+
+
+class DebtHolderApp(App):
     # Initialize the app
     def __init__(self, **kwargs):
-        super(MyApp, self).__init__(**kwargs)
+        super(DebtHolderApp, self).__init__(**kwargs)
         self.next_id = 1
         self.debts = []
         # Join directory with app private directory,
@@ -105,8 +113,19 @@ class MyApp(App):
         for i, d in enumerate(self.debts):
             total += d["debt"]
 
-            # Row containing name|debt|edit|delete
-            rows = BoxLayout(size_hint_y=None, height="40dp", spacing=5)
+            if i % 2 == 0:
+                bg_color = (0.3, 0.3, 0.9, 1)
+            else:
+                bg_color = (0.2, 0.2, 0.7, 1)
+
+            # Row containing name|debt|edit|View History|delete
+            rows = Factory.ColoredBoxLayout(
+                size_hint_y=None,
+                height="50dp",
+                spacing="5dp",
+                padding="5dp",
+                bg_color=bg_color,
+            )
 
             # Add the name and debt
             labels_layout = BoxLayout()
@@ -188,14 +207,52 @@ class MyApp(App):
     def load_history(self):
         container = self.root.get_screen("history").ids.history_container
         container.clear_widgets()
+        num = 0
+
+        current_debt = self.current_debt["debt"]
+        self.root.get_screen("history").ids.current_label.text = (
+            f"Current Debt: {current_debt} Birr"
+        )
 
         for entry in reversed(self.current_debt.get("history", [])):
-            text = f"Amount: {entry['amount']} Birr\nReason: {entry['reason']}\nDate added: {entry['timestamp']}"
+            text = f"Reason: {entry['reason']}\nDate added: {entry['timestamp']}"
 
-            text_label = Label(text=text, size_hint_y=None, height="80dp")
+            if num % 2 == 0:
+                bg_color = (0.3, 0.3, 0.9, 1)
+            else:
+                bg_color = (0.2, 0.2, 0.7, 1)
+
+            holder = Factory.ColoredBoxLayout(
+                orientation="vertical",
+                size_hint_y=None,
+                height="100dp",
+                padding="5dp",
+                bg_color=bg_color,
+            )
+
+            if entry["amount"] > 0:
+                txt_color = "#33e66b"
+            elif entry["amount"] < 0:
+                txt_color = "#e63366"
+            else:
+                txt_color = "#ffffff"
+
+            amount_label = Label(
+                text=f"Amount: [color={txt_color}]{entry['amount']} Birr[/color]",
+                markup=True,
+                font_size="20sp",
+                valign="center",
+            )
+            amount_label.bind(size=amount_label.setter("text_size"))
+
+            text_label = Label(text=text, font_size="18sp", valign="center")
             text_label.bind(size=text_label.setter("text_size"))
 
-            container.add_widget(text_label)
+            holder.add_widget(amount_label)
+            holder.add_widget(text_label)
+
+            container.add_widget(holder)
+            num += 1
 
     # Add a new debt holder
     def add_debt(self):
@@ -239,7 +296,7 @@ class MyApp(App):
                     {
                         "amount": debt,
                         "reason": reason,
-                        "timestamp": datetime.now().strftime("%Y-%m-%D %H:%M"),
+                        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
                     }
                 ],
             }
@@ -258,18 +315,22 @@ class MyApp(App):
             elif op == "-":
                 new_debt = right_num - left_num
 
-            # Update the value of the chosen debt
-            debt_info["name"] = name
-            debt_info["debt"] = new_debt or debt
+            # New debt can be zero and still be taken
+            final_debt = new_debt if new_debt is not None else debt
 
-            # Append new entry to history
+            # Update the value of the chosen debt
+            changed_debt = final_debt - debt_info["debt"]
+
             debt_info["history"].append(
                 {
-                    "amount": new_debt or debt,
+                    "amount": changed_debt,
                     "reason": reason,
-                    "timestamp": datetime.now().strftime("%Y-%m-%D %H:%M"),
+                    "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
                 }
             )
+
+            debt_info["name"] = name
+            debt_info["debt"] = final_debt
 
         # Save data
         self.save_data()
@@ -280,4 +341,4 @@ class MyApp(App):
         self.addPopup.dismiss()
 
 
-MyApp().run()
+DebtHolderApp().run()
