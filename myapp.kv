@@ -1,45 +1,94 @@
-BoxLayout:
-	canvas.before:
-		Color:
-			rgba: (0.1, 0.1, 0.6, 0.7)
-		Rectangle:
-			size: self.size
-			pos: self.pos
-	
-	orientation: 'vertical'
-	padding: 20
-	spacing: 10
-	
+ScreenManager:
+	HomeScreen:
+		name: 'home'
+	HistoryScreen:
+		name: 'history'
+
+<HomeScreen>:
 	BoxLayout:
-		padding: 20
-		spacing: 20
-		size_hint_y: None
-		height: 100
+		canvas.before:
+			Color:
+				rgba: (0.1, 0.1, 0.6, 0.7)
+			Rectangle:
+				size: self.size
+				pos: self.pos
 		
-		Label:
-			text: "Debt holder"
-			font_size: "30sp"
-			
+		orientation: 'vertical'
+		padding: "10dp"
+		spacing: "5dp"
 		
-	ScrollView:
 		BoxLayout:
-			id: list_container
-			orientation: 'vertical'
-			spacing: 20
-			size_hint_y: None
-			height: self.minimum_height
+			orientation: "vertical"
+			size_hint_y: 0.1
+			
+			Label:
+				text: "Debt holder"
+				font_size: "30sp"
+			
+			Label:
+				id: totalDebt
+				text: "Total: 0 Birr"
+				font_size: "18sp"
+				halign: "left"
+				text_size: self.size
+				
+			
+		ScrollView:
+			BoxLayout:
+				id: list_container
+				orientation: 'vertical'
+				spacing: "10dp"
+				size_hint_y: None
+				height: self.minimum_height
+		
+		FloatLayout:
+			size_hint_y: 0
+			height: "1dp"
+			RoundedButton:		    		
+				text: "+"
+				font_size: "32sp"
+				size_hint: None, None
+				size: dp(64), dp(64)
+				pos_hint: {"center_x": .5, "y": .03}
+				rad: self.height/2
+				bg_color: (0.3, 0.4, 0.7, 1)
+				on_press: app.open_add_popup()
 	
-	FloatLayout:
-		RoundedButton:		    		
-	        text: "+"
-	        font_size: "32sp"
-	        size_hint: None, None
-	        size: dp(64), dp(64)
-	        pos_hint: {"center_x": .5, "y": .03}
-	        rad: self.height/2
-	        on_press: app.open_add_popup()
-	
-	
+
+<HistoryScreen>:
+	BoxLayout:
+		canvas.before:
+			Color:
+				rgba: (0.1, 0.1, 0.6, 0.7)
+			Rectangle:
+				size: self.size
+				pos: self.pos
+		orientation:'vertical'
+
+		BoxLayout:
+			size_hint_y: 0.2
+			padding: '20dp'
+			Label:
+				text:'History'
+				font_size: '20sp'
+			
+			Label:
+				text:''
+
+			RoundedButton:
+				text: 'Back'
+				bg_color: (0.3, 0.4, 0.7, 1)
+				on_release: app.root.current = 'home'
+
+		
+		ScrollView:
+			BoxLayout:
+				id: history_container
+				orientation: 'vertical'
+				spacing: '10dp'
+				padding: '10dp'
+				size_hint_y: None
+				height: self.minimum_height
 				
 		
 
@@ -51,7 +100,7 @@ BoxLayout:
 	auto_dismiss: True
 	on_dismiss: app.schedule_reset_popup(app.reset_add_popup)
 	size_hint: .9, None
-	height: "180dp"
+	height: "200dp"
 	background: ""
 	background_color: (0, 0, 0, 0)
 	
@@ -67,24 +116,23 @@ BoxLayout:
 		orientation: 'vertical'
 		spacing: "5dp"
 		padding: "10dp"
-		size_hint_y: None
-		height: '140dp'
+		size_hint_y: 1
 		
 		Label:
 			id: add_popup_label
 			text: "Add a new debt owner."
-			font_size: "20sp"
-		
+			valign: "center"
+			font_size: "25sp"
+			size_hint_y: 0.1
+
 		BoxLayout:
-			padding: 5
-			spacing: 10
-				
+			spacing: "10dp"
+			size_hint_y: 0.3
+
 			TextInput:
 				id: name_input
 				hint_text: 'Name'
 				multiline: False
-				size_hint_y: None
-				height: '30dp'
 				padding: ["5dp", (self.height-self.line_height)/2]
 				font_size: "18sp"
 			
@@ -92,19 +140,20 @@ BoxLayout:
 				id: debt_input
 				hint_text: 'Debt amount'
 				multiline: False
-				size_hint_y: None
-				height: '30dp'
 				padding: ["5dp", (self.height-self.line_height)/2]
 				font_size: "18sp"
-				input_filter: "float"
-			
+		TextInput:
+			id: debt_reason
+			hint_text: "Reason"
+			multiline: True
+			size_hint_y: 0.6
+
 		RoundedButton:
 			id: submit_button
 			text: 'Add'
 			font_size: "20sp"
-			size_hint_y: None
-			height: '40dp'
-			bg_color: (0.5, 0.5, 0.9, 1)
+			size_hint_y: 0.2
+			bg_color: (0.3, 0.4, 0.7, 1)
 			on_press: app.add_debt()
 
 <RoundedButton@Button>
