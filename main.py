@@ -120,41 +120,47 @@ class DebtHolderApp(App):
 
             # Row containing name|debt|edit|View History|delete
             rows = Factory.ColoredBoxLayout(
-                size_hint_y=None,
-                height="50dp",
+                size_hint_y = None,
                 spacing="5dp",
                 padding="5dp",
                 bg_color=bg_color,
             )
+            rows.bind(height=rows.setter("minimum_height"))
 
             # Add the name and debt
             labels_layout = BoxLayout()
-            labels_layout.add_widget(Label(text=str(i + 1), size_hint_x=0.1))
-            labels_layout.add_widget(Label(text=d["name"], size_hint_x=0.2))
+            labels_layout.add_widget(Label(text=d["name"]))
             labels_layout.add_widget(
-                Label(text=str(d["debt"]) + " Birr", size_hint_x=0.2)
+                Label(text=str(d["debt"]) + " Birr")
             )
 
             # Add edit and delete button
-            btn_layout = BoxLayout(size_hint_x=0.5, spacing=20)
+            btn_layout = BoxLayout(spacing="5dp")
             edit_btn = Factory.RoundedButton(
-                text="Edit",
-                size_hint_x=0.13,
-                bg_color=(0.3, 0.7, 0.3, 1),
+                text="[color=#90ff90]Edit[/color]",
+                bg_color=(0.3, 0.7, 0.3, 0),
+                size_hint_x = None,
+                width = "40dp",
+                markup=True,
             )
             # On press wants a callback,
             # lambda ensures that and the function will only be called when pressed
             edit_btn.bind(on_press=lambda _, i=d["id"]: self.edit_debt(i))
 
             delete_btn = Factory.RoundedButton(
-                text="Delete",
-                size_hint_x=0.13,
-                bg_color=(0.7, 0.3, 0.3, 1),
+                text="[color=#ff9090]Delete[/color]",
+                bg_color=(0.7, 0.3, 0.3, 0),
+                size_hint_x = None,
+                width = "50dp",
+                markup=True,
             )
             delete_btn.bind(on_press=lambda _, i=d["id"]: self.delete_debt(i))
 
             history_btn = Factory.RoundedButton(
-                text="View History", size_hint_x=0.225, bg_color=(0.3, 0.4, 0.7, 1)
+                text="[color=#acaaff]View History[/color]", 
+                bg_color=(0.3, 0.4, 0.7, 0),
+                
+                markup=True
             )
             history_btn.bind(on_press=lambda _, i=d["id"]: self.open_history_screen(i))
 
