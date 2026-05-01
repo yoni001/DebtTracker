@@ -69,16 +69,16 @@ ScreenManager:
 			size_hint_y: 0.1
 			padding: '20dp'
 			Label:
+				id: historyTitle
 				text:'Debt History'
 				font_size: '25sp'
 			
 			# Space holders
 			
-			Label:
-				text:''
 
 			RoundedButton:
 				text: 'Back'
+				size_hint_x: 0.4
 				bg_color: (0.3, 0.4, 0.7, 1)
 				on_release: app.root.current = 'home'
 

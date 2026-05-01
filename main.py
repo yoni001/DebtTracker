@@ -44,6 +44,7 @@ class DebtHolderApp(App):
         self.file_path = join(self.user_data_dir, "data.json")
         self.edit_id = None
         self.addPopup = None
+        self.current_debt = None
 
     # Load data and refrsh when the app starts
     def on_start(self):
@@ -211,6 +212,9 @@ class DebtHolderApp(App):
 
     # Load the history entries
     def load_history(self):
+        # Change the title
+        self.root.get_screen("history").ids.historyTitle.text = self.current_debt["name"] + "'s Debt History"
+        
         container = self.root.get_screen("history").ids.history_container
         container.clear_widgets()
         num = 0
