@@ -34,28 +34,8 @@ jobs:
         path: .buildozer_global
         key: buildozer-global-${{ hashFiles('buildozer.spec') }}
 
-    - name: Pre-accept Android SDK Licenses
-      run: |
-        # Set up standard Android command-line tools directory paths ahead of time
-        mkdir -p ~/.buildozer/android/platform/
-        
-        # Download standalone Android cmdline-tools so we can accept licenses before the build starts
-        wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
-        mkdir -p ./cmdline-tools
-        unzip -q cmdline-tools.zip -d ./cmdline-tools
-        
-        # Accept all licensing loops natively via the terminal
-        mkdir -p ~/.android && touch ~/.android/repositories.cfg
-        yes | ./cmdline-tools/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/.buildozer/android/platform/android-sdk --licenses || true
-
     - name: Build APK with Buildozer
       run: |
         buildozer android debug
       env:
         BUILDOZER_ALLOW_KIVY_NEW_DESIGN: 1
-
-    - name: Upload APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: debt-holder-apk
-        path: .bin/*.apk
