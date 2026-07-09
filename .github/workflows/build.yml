@@ -1,41 +1,129 @@
-name: Build Debt Holder APK
+name: Build APK
 
 on:
   push:
-    branches: [ main, master ]
-  workflow_dispatch:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:    # Allows manual triggering
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-    - name: Install System Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev tk-dev libgdbm-compat-dev liblzma-dev lld
+      - name: Cache Buildozer environment
+        id: cache-buildozer
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.buildozer
+            ~/.android
+            ~/.local/share/buildozer
+          key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            buildozer-${{ runner.os }}-
 
-    - name: Install Buildozer and Cython
-      run: |
-        pip install --upgrade pip
-        pip install buildozer cython==0.29.33
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            git \
+            python3-pip \
+            python3-dev \
+            libssl-dev \
+            libffi-dev \
+            liblzma-dev \
+            libsqlite3-dev \
+            libbz2-dev \
+            libreadline-dev \
+            libncurses5-dev \
+            libgdbm-dev \
+            zlib1g-dev \
+            uuid-dev \
+            tk-dev \
+            libgdbm-compat-dev \
+            autoconf \
+            automake \
+            libtool \
+            pkg-config \
+            libgl1-mesa-dev \
+            libgles2-mesa-dev \
+            libsdl2-dev \
+            libsdl2-image-dev \
+            libsdl2-mixer-dev \
+            libsdl2-ttf-dev \
+            libportmidi-dev \
+            libjpeg-dev \
+            libtiff-dev \
+            libwebp-dev \
+            libmtdev-dev \
+            libx11-dev \
+            libxext-dev \
+            libxrender-dev \
+            libxrandr-dev \
+            libxfixes-dev \
+            libxcursor-dev \
+            libxi-dev \
+            libxdamage-dev \
+            libxcomposite-dev \
+            libxss-dev \
+            libxtst-dev \
+            libxinerama-dev \
+            libxv-dev \
+            libxxf86vm-dev \
+            libxcb-glx0-dev \
+            libxcb-icccm4-dev \
+            libxcb-image0-dev \
+            libxcb-keysyms1-dev \
+            libxcb-randr0-dev \
+            libxcb-render-util0-dev \
+            libxcb-shape0-dev \
+            libxcb-shm0-dev \
+            libxcb-sync1-dev \
+            libxcb-util-dev \
+            libxcb-xfixes0-dev \
+            libxcb-xinerama0-dev \
+            libxcb-xkb-dev \
+            libxcb-xv0-dev \
+            libxcb-xvmc0-dev \
+            libxcb1-dev \
+            libxcb-dri2-0-dev \
+            libxcb-dri3-dev \
+            libxcb-present-dev \
+            libxcb-glx0-dev \
+            libxshmfence-dev \
+            libx11-xcb-dev \
+            libxdamage-dev \
+            libxfixes-dev \
+            libxrandr-dev \
+            libxxf86vm-dev \
+            libxext-dev \
+            libgl1-mesa-glx \
+            libxkbcommon-x11-0 \
+            libxkbcommon-x11-dev \
+            xvfb \
+            openjdk-17-jdk \
+            unzip \
+            wget
 
-    - name: Cache Buildozer global directory
-      uses: actions/cache@v4
-      with:
-        path: .buildozer_global
-        key: buildozer-global-${{ hashFiles('buildozer.spec') }}
+      - name: Install Buildozer
+        run: pip3 install buildozer
 
-    - name: Build APK with Buildozer
-      run: |
-        buildozer android debug
-      env:
-        BUILDOZER_ALLOW_KIVY_NEW_DESIGN: 1
+      - name: Build APK (debug)
+        run: buildozer android debug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: ./bin/*.apk
